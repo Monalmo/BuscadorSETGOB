@@ -1,0 +1,142 @@
+/* Flex */
+
+.flex {
+	display: flex;
+}
+
+.ffcn {
+	flex-flow: column nowrap;
+}
+
+.ffrn {
+	flex-flow: row nowrap;
+}
+
+/* justify */
+
+.jcc {
+	justify-content: center;
+}
+
+.jcsb {
+	justify-content: space-between;
+}
+
+.jcse {
+	justify-content: space-evenly;
+}
+
+.jcfs {
+	justify-content: flex-start;
+}
+
+.aic {
+	align-items: center;
+}
+
+.aib {
+	align-items: baseline;
+}
+
+/* Paddingg y margins */
+
+.p1em {
+	padding: 1em;
+}
+
+.p2em {
+	padding: 2em;
+}
+
+.p3em {
+	padding: 3em;
+}
+
+.p4em {
+	padding: 4em;
+}
+
+.pl1em {
+	padding-left: 1em;
+}
+
+.pl2em {
+	padding-left: 2em;
+}
+
+.pr1em {
+	padding-right: 1em;
+}
+
+.pr2em {
+	padding-right: 2em;
+}
+
+.pt1em {
+	padding-top: 1em;
+}
+
+.pb1em {
+	padding-bottom: 1em;
+}
+
+.m1em {
+	margin: 1em;
+}
+
+.m2em {
+	margin: 2em;
+}
+
+.m3em {
+	margin: 3em;
+}
+
+.m4em {
+	margin: 4em;
+}
+
+/* transformacionde de texto */
+.cap {
+	text-transform: capitalize;
+}
+
+/* alineacion de textos */
+.tac {
+	text-align: center;
+}
+
+.tal {
+	text-align: left;
+}
+
+/* width */
+.w100 {
+	width: 100%;
+}
+
+.w70 {
+	width: 50%;
+}
+
+.w30 {
+	width: 30%;
+}
+
+.w90px {
+	width: 90px;
+}
+
+.noCompu {
+	display: none;
+}
+
+@media screen and (max-width: 500px) {
+	.noMovil {
+		display: none;
+	}
+
+	.noCompu {
+		display: flex;
+	}
+}

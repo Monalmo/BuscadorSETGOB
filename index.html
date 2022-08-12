@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Document</title>
+
+	<script type="module" src="./serviciosObj.js"></script>
+
+	<!-- Importa librria de lodash -->
+	<script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"
+		integrity="sha256-qXBd/EfAdjOA2FGrGAG+b3YBn2tn5A6bhz+LSgYD96k=" crossorigin="anonymous"></script>
+	<!-- <script type="module" src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/_Map.min.js"></script>
+	<script type="module" src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/forEach.min.js"></script>
+	<script type="module" src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/pickBy.min.js"></script>
+	<script type="module" src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/includes.min.js"></script> -->
+
+	<!-- importa vue -->
+	<script type="module" src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+
+	<link rel="stylesheet" type="text/css" href="./baseCSS.css">
+	<link rel="stylesheet" type="text/css" href="./buscador.css">
+</head>
+
+<body>
+
+
+	<div id="buscador" class="contenedorBuscador">
+		<div class="rootBuscador">
+			<div class="contenedor flex ffcn jcc aic">
+				<div class="cabecera flex jcc aic">
+					<div class="inputBuscador"><input type="text" placeholder="Escribe tu localidad" v-focus
+							v-model="buscarRecorrido" />
+						<div class="lineaDelFocus"></div>
+					</div>
+				</div>
+
+				<div class="noMovil emcontrados flex ffcn" v-if="montado && matchBusqueda">
+					<div class="cajaMatchs">
+						<div class="titulos flex ffrn jcsb pl1em pr1em pt1em">
+							<div>Comuna, región</div>
+							<div>Origen - Destino</div>
+							<div>Horarios</div>
+						</div>
+						<div class="match flex ffrn jcsb aic" v-for="recorrido in matchBusqueda">
+							<div class="pr1em">
+								<div class="comuna pt1em cap">{{ recorrido.comuna }},</div>
+
+								<div class="region cap" v-if="!recorrido.machregion">{{ recorrido.region }}</div>
+
+							</div>
+							<div class="pr1em pl1em cap">
+								<div class="sectores">{{ recorrido.origenDestino }}</div>
+							</div>
+							<div class="pl1em flex ffrn">
+								<div class="ida pr1em">Ida<div class="hora" v-for="hora in recorrido.horario.idas">
+										<div class="hora">{{ hora }}</div>
+									</div>
+								</div>
+								<div class="retorno">Retorno<div class="retornos" v-for="hora in recorrido.horario.retornos">
+										<div class="hora">{{ hora }}</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="noCompu emcontrados flex ffcn" v-if="montado && matchBusqueda">
+					<div class="cajaMatchs">
+						<div class="match flex ffcn" v-for="recorrido in matchBusqueda">
+							<div class="pr1em flex ffrn jcsb aib tal w100">
+								<div class="pr1em w90px">Comuna: </div>
+								<div class="comuna pt1em pb1em cap w100">{{ recorrido.comuna }}, {{ recorrido.region }}</div>
+							</div>
+							<div class="pr1em flex ffrn jcsb cap aib tal w100">
+								<div class="pr1em w90px">Origen - Destino: </div>
+								<div class="sectores w100">{{ recorrido.origenDestino }}</div>
+							</div>
+							<div class="flex ffrn jcsb tal w100 pt1em">
+								<div class="pr1em w90px">Horarios: </div>
+								<div class="horarios flex ffrn w100">
+									<div class="ida pr1em">Ida<div class="hora" v-for="hora in recorrido.horario.idas">
+											<div class="hora">{{ hora }}</div>
+										</div>
+									</div>
+									<div class="retorno pl1em">Retorno<div class="retornos" v-for="hora in recorrido.horario.retornos">
+											<div class="hora">{{ hora }}</div>
+										</div>
+									</div>
+								</div>
+
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script type="module">
+		import { todos } from './serviciosObj.js'
+		// import { _Map } from 'lodash'
+
+		var app = new Vue( {
+			el: '#buscador',
+
+			directives: {
+				focus: {
+					// Definición de directiva
+					inserted ( el ) {
+						// console.log('el', el)
+						Vue.nextTick( () => el.focus() )
+					}
+				}
+			},
+			data () {
+				return {
+					buscarRecorrido: '',
+					// todosLosRecorridos: todos
+					mostrarRecorridos: false,
+					montado: false
+				}
+			},
+
+			computed: {
+				matchBusqueda () {
+					if ( !todos ) return null
+					// const todos = this.todos
+					// console.log( 'todos', todos )
+					const buscado = this.buscarRecorrido.toLowerCase()
+					if ( buscado === '' ) {
+						this.mostrarRecorridos = false
+						return null
+					}
+					if ( buscado.length < 2 ) {
+						this.mostrarRecorridos = false
+						return null
+					}
+
+					// funcion qeu retorna los recorridos en base al match de busqueda en comuna, region, origenDestino y localidad
+					const recorridosFiltrados = _.pickBy( todos, r => {
+						const xComuna = _.includes( r.comuna, buscado )
+						const xRegion = _.includes( r.region, buscado )
+						const xOrigenDestino = _.includes( r.origenDestino, buscado )
+						const xLocalidad = _.includes( r.sectoresTrayecto, buscado )
+						return xComuna || xRegion || xLocalidad || xOrigenDestino
+					} )
+
+					// si no tiene recorridos retorna null
+					if ( _.isEmpty( recorridosFiltrados ) ) {
+						this.mostrarRecorridos = false
+						return null
+					}
+
+					// genera expresion regular en base a la busqueda del usuario
+					const myreg = `(${buscado})`
+					const regular = new RegExp( myreg, 'g' )
+					// console.log( 'mach del regex', regular )
+
+
+					// Map que retorna los recorridos filtrados y donde se hixo el match separa el string en string[] para destacarlo facilmente
+					// const matchsDestacados = _.map( recorridosFiltrados, r => {
+					// 	const matchComuna = regular.test( r.comuna )
+					// 	const matchRegion = regular.test( r.region )
+					// 	const matchOrigenDestino = regular.test( r.origenDestino )
+					// 	const matchLocalidad = regular.test( r.sectoresTrayecto )
+					// 	// console.log( 'matches', { matchComuna, matchRegion, matchOrigenDestino, matchLocalidad } )
+					// 	if ( matchComuna ) {
+					// 		// console.log( 'comuna', r.comuna, 'regular', regular.exec( r.comuna ), 'index', r.comuna.search( regular ) )
+					// 		_.capitalize( r.comuna )
+					// 		r.comunaArray = r.comuna.split( regular, 3 )
+					// 		r.machcomuna = true
+					// 	}
+					// 	if ( matchRegion ) {
+					// 		const indexInicial = r.region.search( regular )
+					// 		const indexFinal = indexInicial + buscado.length
+
+					// 		_.capitalize( r.region )
+					// 		if ( indexInicial === 0 ) {
+					// 			const espacio = r.region.indexOf( ' ' )
+					// 			// console.log( 'espacio', espacio )
+
+					// 			r.regionArray = ['', r.region.substring( indexInicial, ( indexFinal ) ), r.region.substring( ( indexFinal ), r.region.length )]
+					// 		}
+					// 		else {
+					// 			r.regionArray = [r.region.substring( 0, ( indexInicial - 1 ) ), r.region.substring( indexInicial, indexFinal ), r.region.substring( ( indexFinal ), r.region.length )]
+					// 		}
+
+					// 		// console.log( 'index mach region', indexInicial )
+					// 		// r.regionArray = r.region.split( regular, 3 )
+					// 		r.machregion = true
+					// 	}
+					// 	if ( matchOrigenDestino ) {
+					// 		r.origenDestinoArray = r.origenDestino.split( regular, 3 )
+					// 		r.machorigenDestino = true
+					// 	}
+					// 	if ( matchLocalidad ) {
+					// 		r.sectoresTrayectoArray = r.sectoresTrayecto.split( regular, 3 )
+					// 		r.machsectoresTrayecto = true
+					// 	}
+					// 	return r
+					// } )
+
+
+					this.mostrarRecorridos = true
+					return recorridosFiltrados
+					// const recorridosFiltradosDestacados = _map(recorridosFiltrados, r => {
+
+					// })
+				}
+			},
+			mounted () {
+				this.montado = true
+			}
+
+		} )
+	</script>
+</body>
+
+</html>
